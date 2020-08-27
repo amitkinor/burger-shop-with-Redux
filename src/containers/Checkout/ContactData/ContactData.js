@@ -5,6 +5,7 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/state-in-constructor */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Button from '../../../components/UI/Button/Button';
 import axiosInstance from '../../../axios-orders';
@@ -12,7 +13,7 @@ import Spinner from '../../../components/UI/Spinner/Spinner';
 import classes from './ContactData.module.css';
 import Input from '../../../components/UI/Forms/Input/Input';
 
-export default class ContactData extends Component {
+class ContactData extends Component {
   state = {
     orderForm: {
       name: {
@@ -107,7 +108,7 @@ export default class ContactData extends Component {
 
   orderHandler = (event) => {
     event.preventDefault();
-    const { ingredients, price, history } = this.props;
+    const { redIngredients, redTotalPrice, history } = this.props;
     const { orderForm } = this.state;
     this.setState({ loading: true });
 
@@ -117,8 +118,8 @@ export default class ContactData extends Component {
     }
 
     const order = {
-      ingredients,
-      price,
+      redIngredients,
+      redTotalPrice,
       orderData: formData,
     };
 
@@ -151,14 +152,13 @@ export default class ContactData extends Component {
         curFormIsValid = false;
       }
     }
-    console.log(curFormIsValid);
     this.setState({ orderForm: updatedFormData, formIsValid: curFormIsValid });
   };
 
   checkValidity(value, rules) {
     let isValid = true;
 
-    if(!rules){
+    if (!rules) {
       return true;
     }
 
@@ -176,7 +176,7 @@ export default class ContactData extends Component {
   }
 
   render() {
-    const { loading, orderForm, formIsValid } = this.state;
+    const { loading, orderForm } = this.state;
     const formInputs = [];
     const orderFormKeys = Object.keys(orderForm);
     orderFormKeys.map((iter) => {
@@ -199,7 +199,7 @@ export default class ContactData extends Component {
     let form = (
       <form onSubmit={this.orderHandler}>
         {formInputs}
-        <Button disabled={!formIsValid} btnType="Success">
+        <Button clicked={this.orderHandler} btnType="Success">
           ORDER
         </Button>
       </form>
@@ -210,3 +210,9 @@ export default class ContactData extends Component {
     return <div className={classes.ContactData}>{form}</div>;
   }
 }
+
+const mapStateToProps = (state) => ({
+  redIngredients: state.ingredients,
+  redTotalPrice: state.totalPrice,
+});
+export default connect(mapStateToProps)(ContactData);
